@@ -14,7 +14,7 @@ public class TestResource {
     public String hello() {
 
         com.typesafe.config.Config config = TestMicroService.getConfigProvider().getConfig();
-        String greeting = config.getString("chegg.greeting");
+        String greeting = config.getString("test.greeting");
         return greeting;
 
     }
