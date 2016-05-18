@@ -1,4 +1,4 @@
-package com.chegg.microservices.config;
+package net.iterable.core.config;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;

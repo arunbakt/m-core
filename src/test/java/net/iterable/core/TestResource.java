@@ -1,6 +1,6 @@
-package com.chegg.microservices;
+package net.iterable.core;
 
-import com.chegg.microservices.resources.HealthCheck;
+import net.iterable.core.resources.HealthCheck;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 

@@ -1,4 +1,4 @@
-package com.chegg.microservices.resources;
+package net.iterable.core.resources;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

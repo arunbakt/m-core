@@ -1,4 +1,4 @@
-package com.chegg.microservices;
+package net.iterable.core;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.google.common.collect.Sets;

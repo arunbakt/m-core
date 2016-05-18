@@ -1,6 +1,6 @@
-package com.chegg.microservices.discovery.consul;
+package net.iterable.core.discovery.consul;
 
-import com.chegg.microservices.Microservice;
+import net.iterable.core.Microservice;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.agent.Registration;
 import com.typesafe.config.Config;

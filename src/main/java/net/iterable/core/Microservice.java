@@ -1,8 +1,8 @@
-package com.chegg.microservices;
+package net.iterable.core;
 
 
-import com.chegg.microservices.config.ConfigProvider;
-import com.chegg.microservices.discovery.consul.ConsulLifeCycleListener;
+import net.iterable.core.config.ConfigProvider;
+import net.iterable.core.discovery.consul.ConsulLifeCycleListener;
 import com.codahale.metrics.health.HealthCheck;
 import com.orbitz.consul.Consul;
 import org.eclipse.jetty.server.Server;
