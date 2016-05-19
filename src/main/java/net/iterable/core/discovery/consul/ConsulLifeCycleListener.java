@@ -1,5 +1,7 @@
 package net.iterable.core.discovery.consul;
 
+import com.orbitz.consul.model.agent.ImmutableRegCheck;
+import com.orbitz.consul.model.agent.ImmutableRegistration;
 import net.iterable.core.Microservice;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.agent.Registration;
@@ -45,24 +47,20 @@ public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycle
         String name = microservice.serviceName();
 
         try {
+
             URL healthUrl = new URL("http", host, port, "/"+microservice.serviceName()+"/health");
-            Registration registration = new Registration();
-
-            registration.setAddress(host);
-            registration.setPort(port);
-            registration.setId(serviceId);
-            registration.setName(name);
-
-            Registration.Check check = new Registration.Check();
-
-            check.setHttp(healthUrl.toExternalForm());
-            check.setInterval("5s");
-
-            registration.setCheck(check);
-
+            Registration.RegCheck check = ImmutableRegCheck.builder()
+                    .http(healthUrl.toExternalForm())
+                    .interval("5s")
+                    .build();
+            Registration registration = ImmutableRegistration.builder()
+                    .address(host)
+                    .port(port)
+                    .id(serviceId)
+                    .name(name)
+                    .check(check)
+                    .build();
             consul.agentClient().register(registration);
-
-           // consul.keyValueClient().
 
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
