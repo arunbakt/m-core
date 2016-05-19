@@ -19,12 +19,12 @@ public class TestMicroService extends Microservice {
 
     @Override
     public int servicePort() {
-        return 8080;
+        return getConfigProvider().getConfig().getInt("discovery.advertised.port");
     }
 
     @Override
     public Set<String> resourcePackages() {
-        return Sets.newHashSet("com.chegg");
+        return Sets.newHashSet("net.iterable.core");
     }
 
     @Override
