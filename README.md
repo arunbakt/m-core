@@ -2,7 +2,7 @@
 Foundational library for creating RESTful microservice
 
 
-## FAQ:
+## Question and Answers:
 
 1. What is the assumption/dependencies for the application built using this library?
 All applications built using m-core are to be run as docker containers, and assumes a consul client is
