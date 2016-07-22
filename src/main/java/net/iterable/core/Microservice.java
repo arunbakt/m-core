@@ -1,6 +1,7 @@
 package net.iterable.core;
 
 
+import com.google.common.net.HostAndPort;
 import net.iterable.core.config.ConfigProvider;
 import net.iterable.core.discovery.consul.ConsulLifeCycleListener;
 import com.codahale.metrics.health.HealthCheck;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by arun on 2/17/16.
  */
-public abstract class Microservice {
+public abstract class Microservice<T> {
 
     private static final ConfigProvider configProvider = new ConfigProvider();
 
@@ -79,7 +80,8 @@ public abstract class Microservice {
 
         String host = configProvider.getConfig().getString("discovery.consul.host");
         int port = configProvider.getConfig().getInt("discovery.consul.port");
-        consul = Consul.newClient(host, port);
+        Consul.Builder builder = Consul.builder();
+        consul = builder.withHostAndPort(HostAndPort.fromHost(host)).build();
 
     }
 
