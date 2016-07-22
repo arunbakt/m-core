@@ -81,7 +81,8 @@ public abstract class Microservice<T> {
         String host = configProvider.getConfig().getString("discovery.consul.host");
         int port = configProvider.getConfig().getInt("discovery.consul.port");
         Consul.Builder builder = Consul.builder();
-        consul = builder.withHostAndPort(HostAndPort.fromHost(host)).build();
+        System.out.println("host and port " +host+":"+port);
+        consul = builder.withHostAndPort(HostAndPort.fromParts(host, port)).build();
 
     }
 
