@@ -1,5 +1,6 @@
 package net.iterable.core.discovery.consul;
 
+import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.model.agent.ImmutableRegCheck;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import net.iterable.core.Microservice;
@@ -60,7 +61,22 @@ public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycle
                     .name(name)
                     .check(check)
                     .build();
-            consul.agentClient().register(registration);
+            int  retriedCount = 0;
+            boolean registrationSuccessful = false;
+            while(!registrationSuccessful && retriedCount <= 5) {
+                try {
+                    Thread.sleep(5000);
+                    consul.agentClient().register(registration);
+                    registrationSuccessful = true;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ConsulException consulException) {
+                    consulException.printStackTrace();
+                } finally {
+                    retriedCount++;
+                }
+            }
+
 
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
