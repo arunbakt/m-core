@@ -34,7 +34,27 @@ public abstract class Microservice<T> {
 
     public void start() {
 
-        initializeConsul();
+        boolean consulInitialized=false;
+        int tryCount = 0;
+        Throwable initializationException = null;
+        while(!consulInitialized && tryCount < 5) {
+            try{
+                tryCount++;
+                initializeConsul();
+            } catch(Throwable t) {
+                initializationException = t;
+                System.out.println(t);
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if(!consulInitialized) {
+            throw new RuntimeException("Couldn't initialize consul agent",initializationException);
+        }
+
         int port = servicePort();
         final Server server = new Server(port);
         ServletContextHandler context =
