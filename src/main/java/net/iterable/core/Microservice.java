@@ -41,6 +41,7 @@ public abstract class Microservice<T> {
             try{
                 tryCount++;
                 initializeConsul();
+                consulInitialized = true;
             } catch(Throwable t) {
                 initializationException = t;
                 System.out.println(t.getMessage());
