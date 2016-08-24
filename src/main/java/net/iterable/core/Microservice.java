@@ -45,8 +45,10 @@ public abstract class Microservice<T> {
                 initializationException = t;
                 System.out.println(t.getMessage());
                 try {
+                    System.out.println("Going to sleep..");
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
+                    System.out.println("Interrupted from sleep...");
                     e.printStackTrace();
                 }
             }
