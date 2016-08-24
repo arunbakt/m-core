@@ -43,7 +43,7 @@ public abstract class Microservice<T> {
                 initializeConsul();
             } catch(Throwable t) {
                 initializationException = t;
-                System.out.println(t);
+                System.out.println(t.getMessage());
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
