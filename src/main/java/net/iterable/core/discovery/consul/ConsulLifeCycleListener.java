@@ -11,6 +11,7 @@ import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -22,6 +23,7 @@ import java.util.UUID;
  * Created by arun on 3/7/16.
  */
 public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycleListener {
+
 
     private Consul consul;
     private Config config;
@@ -46,7 +48,7 @@ public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycle
         String host = getHostAddress();
         int port = config.getInt("discovery.advertised.port");
         String name = microservice.serviceName();
-
+        logger.debug("About to register {} service running on {} on port {} to consul ", name, host, port);
         try {
 
             URL healthUrl = new URL("http", host, port, "/"+microservice.serviceName()+"/health");
@@ -94,9 +96,9 @@ public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycle
     private String getHostAddress() {
 
         try {
-            // TODO: The following IP address detection might need some work when deploying
-            // to ECS/Docker environment potentially
-            return InetAddress.getLocalHost().getHostAddress();
+            String hostIp = config.getString("HOST_IP"); // HOST_IP is an environment variable
+            logger.debug("Host IP value from the config - environment variable HOST_IP is : {}", hostIp);
+            return (hostIp == null) ? InetAddress.getLocalHost().getHostAddress() : hostIp;
         } catch (UnknownHostException e) {
             String ERROR_MESSAGE = "Cannot determine the IP address of the host";
             logger.error(ERROR_MESSAGE, e);
