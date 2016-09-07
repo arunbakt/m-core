@@ -10,6 +10,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ServerProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -21,6 +23,9 @@ import java.util.stream.Collectors;
 public abstract class Microservice<T> {
 
     private static final ConfigProvider configProvider = new ConfigProvider();
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ConsulLifeCycleListener.class);
 
     private static Consul consul;
 
@@ -34,26 +39,29 @@ public abstract class Microservice<T> {
 
     public void start() {
 
+        logger.debug("Starting {} microservice..", this.serviceName());
         boolean consulInitialized=false;
         int tryCount = 0;
         Throwable initializationException = null;
         while(!consulInitialized && tryCount < 5) {
             try{
                 tryCount++;
+                logger.debug("Initializing consul to register {} microservice..", this.serviceName());
                 initializeConsul();
                 consulInitialized = true;
+                logger.info("Consul initialized for {}", this.serviceName());
             } catch(Throwable t) {
                 initializationException = t;
-                System.out.println(t.getMessage());
                 try {
-                    System.out.println("Going to sleep..");
+                    logger.warn("Initializing consul encountered error, going to sleep before retrying..", t);
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
-                    System.out.println("Interrupted from sleep...");
+                    logger.error("Interrupted while waiting to retry consul initialization routine", e);
                     e.printStackTrace();
                 }
             }
         }
+
         if(!consulInitialized) {
             throw new RuntimeException("Couldn't initialize consul agent",initializationException);
         }
@@ -72,6 +80,7 @@ public abstract class Microservice<T> {
         try {
             server.setStopAtShutdown(true);
             server.start();
+            logger.info("jetty server started successfully");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,6 +101,8 @@ public abstract class Microservice<T> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        logger.info("Microservice {} ready to take requests..", this.serviceName());
 
     }
 

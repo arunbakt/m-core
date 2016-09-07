@@ -11,8 +11,6 @@ import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -88,7 +86,7 @@ public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycle
 
     @Override
     public void lifeCycleStopping(LifeCycle event) {
-        System.out.println("Stopping");
+        logger.info("Deregistering {} from consul", microservice.serviceName());
         consul.agentClient().deregister(serviceId);
     }
 
