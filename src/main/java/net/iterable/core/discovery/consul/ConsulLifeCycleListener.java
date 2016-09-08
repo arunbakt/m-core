@@ -46,7 +46,7 @@ public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycle
         String host = getHostAddress();
         int port = config.getInt("discovery.advertised.port");
         String name = microservice.serviceName();
-        logger.debug("About to register {} service running on {} on port {} to consul ", name, host, port);
+        logger.info("About to register {} service running on {} on port {} to consul ", name, host, port);
         try {
 
             URL healthUrl = new URL("http", host, port, "/"+microservice.serviceName()+"/health");
@@ -96,7 +96,7 @@ public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycle
         try {
             String hostIp = System.getenv("MCORE_HOST_IP");
             //String hostIp = config.hasPathOrNull("MCORE_HOST_IP") ? config.getString("MCORE_HOST_IP") : null;
-            logger.debug("Host IP value from the config - environment variable MCORE_HOST_IP is : {}", hostIp);
+            logger.info("IP value from the config - environment variable MCORE_HOST_IP is : {}", hostIp);
             return (hostIp == null) ? InetAddress.getLocalHost().getHostAddress() : hostIp;
         } catch (UnknownHostException e) {
             String ERROR_MESSAGE = "Cannot determine the IP address of the host";

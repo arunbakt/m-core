@@ -39,14 +39,14 @@ public abstract class Microservice<T> {
 
     public void start() {
 
-        logger.debug("Starting {} microservice..", this.serviceName());
+        logger.info("Starting {} microservice..", this.serviceName());
         boolean consulInitialized=false;
         int tryCount = 0;
         Throwable initializationException = null;
         while(!consulInitialized && tryCount < 5) {
             try{
                 tryCount++;
-                logger.debug("Initializing consul to register {} microservice..", this.serviceName());
+                logger.info("Initializing consul to register {} microservice..", this.serviceName());
                 initializeConsul();
                 consulInitialized = true;
                 logger.info("Consul initialized for {}", this.serviceName());
