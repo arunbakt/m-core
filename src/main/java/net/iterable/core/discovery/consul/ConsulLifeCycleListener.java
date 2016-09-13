@@ -95,7 +95,6 @@ public class ConsulLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycle
 
         try {
             String hostIp = System.getenv("MCORE_HOST_IP");
-            //String hostIp = config.hasPathOrNull("MCORE_HOST_IP") ? config.getString("MCORE_HOST_IP") : null;
             logger.info("IP value from the config - environment variable MCORE_HOST_IP is : {}", hostIp);
             return (hostIp == null) ? InetAddress.getLocalHost().getHostAddress() : hostIp;
         } catch (UnknownHostException e) {

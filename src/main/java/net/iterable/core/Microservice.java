@@ -1,6 +1,7 @@
 package net.iterable.core;
 
 
+import com.google.common.collect.Sets;
 import com.google.common.net.HostAndPort;
 import net.iterable.core.config.ConfigProvider;
 import net.iterable.core.discovery.consul.ConsulLifeCycleListener;
@@ -22,10 +23,12 @@ import java.util.stream.Collectors;
  */
 public abstract class Microservice<T> {
 
-    private static final ConfigProvider configProvider = new ConfigProvider();
+    private static final ConfigProvider configProvider = ConfigProvider.getInstance();
 
     private static final Logger logger =
             LoggerFactory.getLogger(ConsulLifeCycleListener.class);
+
+    private String[] DEFAULT_RESOURCES = {"net.iterable.core.resources"};
 
     private static Consul consul;
 
@@ -54,7 +57,7 @@ public abstract class Microservice<T> {
                 initializationException = t;
                 try {
                     logger.warn("Initializing consul encountered error, going to sleep before retrying..", t);
-                    Thread.sleep(3000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     logger.error("Interrupted while waiting to retry consul initialization routine", e);
                     e.printStackTrace();
@@ -90,6 +93,7 @@ public abstract class Microservice<T> {
             public void run() {
                 try {
                     server.stop();
+                    logger.info("jetty server successfully shutdown");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -128,7 +132,9 @@ public abstract class Microservice<T> {
     }
 
     private String resourcePackageString() {
-        return resourcePackages().stream()
+        Set<String> resources = Sets.newHashSet(DEFAULT_RESOURCES);
+        resources.addAll(resourcePackages());
+        return resources.stream()
                 .collect(Collectors.joining(";"));
     }
 

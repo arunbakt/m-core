@@ -1,4 +1,4 @@
-group 'foundation.microservices'
+group 'com.github.arunbakt'
 version '0.1.0'
 
 apply plugin: 'java'
@@ -8,6 +8,21 @@ apply plugin: 'maven-publish'
 repositories {
     mavenCentral()
     mavenLocal()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+publishing {
+    repositories {
+        maven {
+            url 'file://' + System.getProperty('user.home') + '/.m2/repository/'
+        }
+    }
 }
 
 dependencies {
