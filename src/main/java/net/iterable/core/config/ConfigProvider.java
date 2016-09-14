@@ -31,13 +31,10 @@ public final class ConfigProvider {
        return runtimeConfig;
     }
 
-    public Config update(String jsonConfig) {
+    public Config update(Map<String, String> configUpdate) {
 
         String ORIGIN_DESCRIPTION = "Consul";
-        ConfigParseOptions options = ConfigParseOptions.defaults()
-                .setSyntax(ConfigSyntax.JSON)
-                .setOriginDescription(ORIGIN_DESCRIPTION);
-        Config newConfig = ConfigFactory.parseString(jsonConfig, options);
+        Config newConfig = ConfigFactory.parseMap(configUpdate);
         Set<Map.Entry<String, ConfigValue>> entries = newConfig.entrySet();
         Map<String, ConfigValue> normalizedEntries = entries.stream()
                 .map(entry -> {
