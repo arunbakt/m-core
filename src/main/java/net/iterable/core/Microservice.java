@@ -7,6 +7,7 @@ import net.iterable.core.config.ConfigProvider;
 import net.iterable.core.discovery.consul.ConsulLifeCycleListener;
 import com.codahale.metrics.health.HealthCheck;
 import com.orbitz.consul.Consul;
+import net.iterable.core.resources.ResourceConstants;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -27,8 +28,6 @@ public abstract class Microservice<T> {
 
     private static final Logger logger =
             LoggerFactory.getLogger(ConsulLifeCycleListener.class);
-
-    private String[] DEFAULT_RESOURCES = {"net.iterable.core.resources"};
 
     private static Consul consul;
 
@@ -132,7 +131,7 @@ public abstract class Microservice<T> {
     }
 
     private String resourcePackageString() {
-        Set<String> resources = Sets.newHashSet(DEFAULT_RESOURCES);
+        Set<String> resources = Sets.newHashSet(ResourceConstants.RESOURCE_PACKAGE_NAME);
         resources.addAll(resourcePackages());
         return resources.stream()
                 .collect(Collectors.joining(";"));
