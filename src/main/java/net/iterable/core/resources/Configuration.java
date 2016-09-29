@@ -4,6 +4,7 @@ import net.iterable.core.config.ConfigProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class Configuration {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String update(Map<String, String> newConfig) {
+    public String update(@NotNull Map<String, String> newConfig) {
         logger.info("Update for configuration received with payload {}", newConfig);
         return ConfigProvider.getInstance().update(newConfig).toString();
     }
