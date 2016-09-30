@@ -1,6 +1,10 @@
 package net.iterable.core.resources;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Link;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,17 +13,18 @@ import java.util.Set;
  */
 public class HyperMedia {
 
-    private Set<Link> links;
+    private Set<StatefulLink> links;
 
     public HyperMedia() {
-        links = new HashSet<>();
+        links = new HashSet<StatefulLink>();
     }
 
-    public Set<Link> getLinks() {
+    @JsonProperty("links")
+    public Set<StatefulLink> links() {
         return links;
     }
 
-    public void addLink(Link link) {
+    public void addLink(StatefulLink link) {
         this.links.add(link);
     }
 
