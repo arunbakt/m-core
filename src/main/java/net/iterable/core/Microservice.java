@@ -42,31 +42,6 @@ public abstract class Microservice<T> {
     public void start() {
 
         logger.info("Starting {} microservice..", this.serviceName());
-        boolean consulInitialized=false;
-        int tryCount = 0;
-        Throwable initializationException = null;
-        while(!consulInitialized && tryCount < 5) {
-            try{
-                tryCount++;
-                logger.info("Initializing consul to register {} microservice..", this.serviceName());
-                initializeConsul();
-                consulInitialized = true;
-                logger.info("Consul initialized for {}", this.serviceName());
-            } catch(Throwable t) {
-                initializationException = t;
-                try {
-                    logger.warn("Initializing consul encountered error, going to sleep before retrying..", t);
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    logger.error("Interrupted while waiting to retry consul initialization routine", e);
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if(!consulInitialized) {
-            throw new RuntimeException("Couldn't initialize consul agent",initializationException);
-        }
 
         int port = servicePort();
         final Server server = new Server(port);
@@ -77,7 +52,11 @@ public abstract class Microservice<T> {
         ServletHolder jerseyServlet = context.addServlet(org.glassfish.jersey.servlet.ServletContainer.class, "/"+serviceName()+"/*");
         jerseyServlet.setInitOrder(1);
         jerseyServlet.setInitParameter(ServerProperties.PROVIDER_PACKAGES, resourcePackageString());
-        jerseyServlet.addLifeCycleListener(createConsulLifeCycleListener());
+
+        if(configProvider.getConfig().getBoolean("discovery.consul.enable")) {
+            initializeConsul();
+            jerseyServlet.addLifeCycleListener(createConsulLifeCycleListener());
+        }
 
         try {
             server.setStopAtShutdown(true);
@@ -115,11 +94,36 @@ public abstract class Microservice<T> {
 
     private void initializeConsul() {
 
-        String host = configProvider.getConfig().getString("discovery.consul.host");
-        int port = configProvider.getConfig().getInt("discovery.consul.port");
-        Consul.Builder builder = Consul.builder();
-        System.out.println("host and port " +host+":"+port);
-        consul = builder.withHostAndPort(HostAndPort.fromParts(host, port)).build();
+
+        boolean consulInitialized=false;
+        int tryCount = 0;
+        Throwable initializationException = null;
+        while(!consulInitialized && tryCount < 5) {
+            try{
+                tryCount++;
+                logger.info("Initializing consul to register {} microservice..", this.serviceName());
+                String host = configProvider.getConfig().getString("discovery.consul.host");
+                int port = configProvider.getConfig().getInt("discovery.consul.port");
+                Consul.Builder builder = Consul.builder();
+                System.out.println("host and port " +host+":"+port);
+                consul = builder.withHostAndPort(HostAndPort.fromParts(host, port)).build();
+                consulInitialized = true;
+                logger.info("Consul initialized for {}", this.serviceName());
+            } catch(Throwable t) {
+                initializationException = t;
+                try {
+                    logger.warn("Initializing consul encountered error, going to sleep before retrying..", t);
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    logger.error("Interrupted while waiting to retry consul initialization routine", e);
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if(!consulInitialized) {
+            throw new RuntimeException("Couldn't initialize consul agent",initializationException);
+        }
 
     }
 
