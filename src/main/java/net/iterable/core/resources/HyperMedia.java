@@ -24,11 +24,11 @@ public class HyperMedia {
         return links;
     }
 
-    protected void addLink(StatefulLink link) {
+    public void addLink(StatefulLink link) {
         this.links.add(link);
     }
 
-    protected void addLinks(Set<StatefulLink> links) {
+    public void addLinks(Set<StatefulLink> links) {
         this.links = links;
     }
 
