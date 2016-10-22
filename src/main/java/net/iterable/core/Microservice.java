@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * Created by arun on 2/17/16.
  */
-public abstract class Microservice<T> {
+public abstract class Microservice {
 
     private static final ConfigProvider configProvider = ConfigProvider.getInstance();
 
