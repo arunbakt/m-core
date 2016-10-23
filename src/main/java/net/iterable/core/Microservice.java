@@ -3,6 +3,7 @@ package net.iterable.core;
 
 import com.google.common.collect.Sets;
 import com.google.common.net.HostAndPort;
+import com.orbitz.consul.model.agent.Config;
 import net.iterable.core.config.ConfigProvider;
 import net.iterable.core.discovery.consul.ConsulLifeCycleListener;
 import com.codahale.metrics.health.HealthCheck;
@@ -39,9 +40,12 @@ public abstract class Microservice {
 
     public abstract List<HealthCheck> healthCheckList();
 
+
+
     public void start() {
 
         logger.info("Starting {} microservice..", this.serviceName());
+        configProvider.initializeServiceName(serviceName());
 
         int port = servicePort();
         final Server server = new Server(port);

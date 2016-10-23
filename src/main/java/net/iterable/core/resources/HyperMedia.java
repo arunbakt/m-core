@@ -1,5 +1,6 @@
 package net.iterable.core.resources;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.ws.rs.HttpMethod;
@@ -16,19 +17,23 @@ public class HyperMedia {
     private Set<StatefulLink> links;
 
     public HyperMedia() {
-        links = new HashSet<StatefulLink>();
-    }
+   }
 
     @JsonProperty("links")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Set<StatefulLink> links() {
         return links;
     }
 
     public void addLink(StatefulLink link) {
+        if(links == null)
+            links = new HashSet();
         this.links.add(link);
     }
 
     public void addLinks(Set<StatefulLink> links) {
+        if(links == null)
+            links = new HashSet();
         this.links = links;
     }
 

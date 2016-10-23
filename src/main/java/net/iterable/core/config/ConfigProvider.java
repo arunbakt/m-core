@@ -19,16 +19,20 @@ public final class ConfigProvider {
     private Config configFromFile;
     private Config runtimeConfig;
     private static String ORIGIN_DESCRIPTION = "Consul";
+    private static final ConfigProvider THIS = new ConfigProvider();
+    private String serviceName;
 
-    private final static ConfigProvider THIS  = new ConfigProvider();
-
-    private ConfigProvider () {
+    private ConfigProvider() {
         this.configFromFile = ConfigFactory.load();
         runtimeConfig = configFromFile;
     }
 
     public static ConfigProvider getInstance() {
         return THIS;
+    }
+
+    public void initializeServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public Config getConfig()
@@ -50,30 +54,25 @@ public final class ConfigProvider {
         configUpdate.entrySet().stream()
                 .forEach(entry -> {
                     String encodedString = entry.getValue();
-                    String decodedString = new String(Base64.getDecoder().decode(encodedString));
 
-                    String[] keyTokens = entry.getKey().split("/");
-                    String previousKey = null;
-                    Map<String, Object> parent = null;
-                    for (String token : keyTokens) {
-                        if (previousKey == null) {
-                            if (!normalizedMap.containsKey(token)) {
-                                normalizedMap.put(token, null);
-                            }
-                            parent = normalizedMap;
-                        } else {
-                            Map<String, Object>  child = (Map<String, Object>) parent.get(previousKey);
-                            if(child == null) {
-                                child = new HashMap();
-                                parent.put(previousKey, child);
-                            }
-                            if(!child.containsKey(token))
-                                child.put(token, null);
-                            parent = child;
-                        }
-                        previousKey = token;
+
+                    int firstIndexOfKeySpace = entry.getKey().lastIndexOf("/")+1;
+                    String[] configContextPath = entry.getKey().split("/");
+                    if(configContextPath.length < 2
+                            || !(configContextPath[0].equals(serviceName))) {
+                        logger.debug("Not a valid config update for {} - was notified with  {}",
+                                serviceName, configUpdate.toString());
+                        return;
                     }
-                    parent.put(previousKey, decodedString);
+
+                    if(entry.getKey().length() == firstIndexOfKeySpace
+                            || entry.getKey().length() < firstIndexOfKeySpace) {
+                        return;
+                    }
+                    String decodedString = new String(Base64.getDecoder().decode(encodedString));
+                    String keyPath = entry.getKey().substring(firstIndexOfKeySpace);
+                    normalizedMap.put(keyPath, decodedString);
+                    logger.debug("Key path {} getting an update value of {}", keyPath, decodedString);
                 });
         return normalizedMap;
     }
