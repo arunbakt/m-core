@@ -1,17 +1,21 @@
 package net.iterable.core.config;
 
-import com.google.common.base.Functions;
-import com.typesafe.config.*;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by arun on 3/8/16.
  */
 public final class ConfigProvider {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(ConfigProvider.class);
     private Config configFromFile;
     private Config runtimeConfig;
     private static String ORIGIN_DESCRIPTION = "Consul";
@@ -36,7 +40,7 @@ public final class ConfigProvider {
 
         Config newConfig = ConfigFactory.parseMap(normalizedMap(configUpdate), ORIGIN_DESCRIPTION);
         runtimeConfig = newConfig.withFallback(configFromFile);
-        logger.debug("Contents of config {}", newConfig.toString());
+        logger.debug("Contents of config {}", runtimeConfig.toString());
         return runtimeConfig;
 
     }
