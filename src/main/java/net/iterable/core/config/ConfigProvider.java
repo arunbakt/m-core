@@ -14,6 +14,7 @@ public final class ConfigProvider {
 
     private Config configFromFile;
     private Config runtimeConfig;
+    private static String ORIGIN_DESCRIPTION = "Consul";
 
     private final static ConfigProvider THIS  = new ConfigProvider();
 
@@ -33,23 +34,44 @@ public final class ConfigProvider {
 
     public Config update(Map<String, String> configUpdate) {
 
-        String ORIGIN_DESCRIPTION = "Consul";
-        Config newConfig = ConfigFactory.parseMap(configUpdate);
-        Set<Map.Entry<String, ConfigValue>> entries = newConfig.entrySet();
-        Map<String, ConfigValue> normalizedEntries = entries.stream()
-                .map(entry -> {
-                    String encodedString = (String) entry.getValue().unwrapped();
-                    String decodedString = new String(Base64.getDecoder().decode(encodedString));
-                    ConfigValue decodedValue = ConfigValueFactory.fromAnyRef(decodedString, ORIGIN_DESCRIPTION);
-                    String normalizedKey = entry.getKey().replaceAll("/", ".");
-                    return new AbstractMap.SimpleImmutableEntry<String, ConfigValue>(normalizedKey, decodedValue);
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        newConfig = ConfigFactory.parseMap(normalizedEntries);
+        Config newConfig = ConfigFactory.parseMap(normalizedMap(configUpdate), ORIGIN_DESCRIPTION);
         runtimeConfig = newConfig.withFallback(configFromFile);
+        logger.debug("Contents of config {}", newConfig.toString());
         return runtimeConfig;
 
     }
 
+    public Map<String, Object> normalizedMap(Map<String, String> configUpdate) {
+        final Map<String, Object> normalizedMap = new HashMap();
+        configUpdate.entrySet().stream()
+                .forEach(entry -> {
+                    String encodedString = entry.getValue();
+                    String decodedString = new String(Base64.getDecoder().decode(encodedString));
+
+                    String[] keyTokens = entry.getKey().split("/");
+                    String previousKey = null;
+                    Map<String, Object> parent = null;
+                    for (String token : keyTokens) {
+                        if (previousKey == null) {
+                            if (!normalizedMap.containsKey(token)) {
+                                normalizedMap.put(token, null);
+                            }
+                            parent = normalizedMap;
+                        } else {
+                            Map<String, Object>  child = (Map<String, Object>) parent.get(previousKey);
+                            if(child == null) {
+                                child = new HashMap();
+                                parent.put(previousKey, child);
+                            }
+                            if(!child.containsKey(token))
+                                child.put(token, null);
+                            parent = child;
+                        }
+                        previousKey = token;
+                    }
+                    parent.put(previousKey, decodedString);
+                });
+        return normalizedMap;
+    }
 
 }
