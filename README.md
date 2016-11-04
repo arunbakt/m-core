@@ -1,38 +1,54 @@
-# microservice-core
-Foundational library for creating RESTful microservice
+# m-core
+
+m-core (microservice core) is a minimalist shell/chasis that is meant to aid in developing API services modeled as a microservice. m-core by itself doesn't enforce or guide the developer to  develop a well defined microservice. The scope of definition is still the responsibilty of the developer as it should be. m-core just helps in avoiding having to repeat few things that developing a microservice requires.
 
 
-## Question and Answers:
 
-### What is the assumption/dependencies for the application built using this library?
-All applications built using m-core are to be run as docker containers, and assumes a consul client is
-run locally on the host machine, which in turn assumes consul cluster with servers is available for the
-consul client to join.
+## Features and Dependencies
 
+Despite the earnest desire to not pick any framework, library and force it on the developer, m-core makes few choices on behalf of the user of this library and they are the following:
 
-### What happens when the app dies?
-Consul client would know that as it does health checks on the app.
+Dependencies
 
-### What happens when the consul client crashes?
-This is a unfortunate situation and very likely would not occur. If it occurs, consul servers would know
-the unavailability of the consul client and with it all the registered services (if only one instance of an
-app is running registered on the crashed consul client).
-For now, we don't take care of the scenario where a crashed consul client is started on the same host whereas the
-app instances are still running on that host and won't register again with the consul client. In this case,
-consul client would not know of the existence of these app instances to do the health checks.
+1. Jetty server/servlet container for your java based microservice
+2. JAXRS Jersey REST API framework
+3. Configuration library from Typesafe, now lightbend
+4. Orbitz's Consul client 
+5. dropwizard's metrics library for monitoring and healthchecks
 
 
-Features:
+Now, what do these dependencies get you?
 
-HyperMedia and Stateful Links: If you decide to develop API services that return resources with hypermedia
-(Links mainly), m-core provides a custom version of Link with href, rel and methods attributes.
+#### ..and more importantly, what does m-core specifically get you? 
 
-Currently there are several hypermedia formats such uber, HAL, siren, and I decided to follow the style used by
-paypal api docs. One modification is to represent the available http methods for a given resource link based on the
-application state.
+In the order of importance
 
-The HyperMedia and StatefulLink depends and assumes the microservice to be using Jackson Json libraries. If you
-choose to extend the HyperMedia class to represent the resources in your app, you will have to use Jackson JSON parser.
-If not, you are free to choose other choices such as MOXy or JAXB implementations.
+1. Assuming you are intending to use consul based key-value configurations and consul discovery for your microservice, m-core will register the application on startup to a consul server, enabling discovery.
+
+2. m-core also will update configurations dynamically when paired with consul watch and when running in consul enabled mode. Note that consul dependency can be disabled in development mode.
+
+3. Will enforce health checks to be defined by each microservice application that uses m-core
+
+4. A server that is REST enabled for your application
+
+5. HyperMedia and Stateful Links. If you decide to develop API services that return resources with hypermedia (Links mainly) HATEOAS style, m-core provides a custom version of Link with href, rel and methods attributes.
 
 
+## Quickstart
+
+1. Add m-core dependency to your project
+
+2. Extend the Microservice class found in m-core from your bootstrap class that has a main method and implement the following abstract methods 
+
+- serviceName() -- returns the name of your microservice
+- servicePort() -- returns the port number where your application listens to requests
+- resourcePackages() -- returns a string set with the java package name(s) that contains resource handlers. Here resource handlers refer to the java classes that use JAXRS annotations to route or handle rest api requests.
+- healthCheckList() - returns a list of HealthCheck object that you want to be called for validating the health of your service. The default health check by m-core just validates whether the server backing the service is reachable or not. 
+
+3. Write the resource handler classes with JAXRS annotations for url paths you want to support
+
+4. gradle run, you should have your app running at http://localhost:<port>/<app-name>/
+
+
+
+This documentation is a work-in-progress...so expect more udpates to come. 

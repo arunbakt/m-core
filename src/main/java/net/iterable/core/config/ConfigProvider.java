@@ -54,8 +54,6 @@ public final class ConfigProvider {
         configUpdate.entrySet().stream()
                 .forEach(entry -> {
                     String encodedString = entry.getValue();
-
-
                     int firstIndexOfKeySpace = entry.getKey().lastIndexOf("/")+1;
                     String[] configContextPath = entry.getKey().split("/");
                     if(configContextPath.length < 2

@@ -3,9 +3,6 @@ package net.iterable.core.resources;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Link;
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 

@@ -19,12 +19,6 @@ public class Configuration {
             LoggerFactory.getLogger(Configuration.class);
 
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String get() {
-        return ConfigProvider.getInstance().getConfig().atPath("cart-checkout-api").toString();
-    }
-
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)

@@ -1,6 +1,7 @@
 package net.iterable.core;
 
 import net.iterable.core.resources.HealthCheck;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -20,7 +21,7 @@ public class TestResource {
     }
 
     @Path("/health")
-    public  HealthCheck healthCheck() {
+    public HealthCheck healthCheck() {
         return new HealthCheck();
     }
 

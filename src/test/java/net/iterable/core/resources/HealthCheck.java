@@ -1,7 +1,6 @@
 package net.iterable.core.resources;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 
 /**
  * Created by arun on 3/9/16.

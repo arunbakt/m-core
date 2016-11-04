@@ -3,7 +3,6 @@ package net.iterable.core;
 
 import com.google.common.collect.Sets;
 import com.google.common.net.HostAndPort;
-import com.orbitz.consul.model.agent.Config;
 import net.iterable.core.config.ConfigProvider;
 import net.iterable.core.discovery.consul.ConsulLifeCycleListener;
 import com.codahale.metrics.health.HealthCheck;
@@ -28,7 +27,7 @@ public abstract class Microservice {
     private static final ConfigProvider configProvider = ConfigProvider.getInstance();
 
     private static final Logger logger =
-            LoggerFactory.getLogger(ConsulLifeCycleListener.class);
+            LoggerFactory.getLogger(Microservice.class);
 
     private static Consul consul;
 
@@ -39,6 +38,8 @@ public abstract class Microservice {
     public abstract Set<String> resourcePackages();
 
     public abstract List<HealthCheck> healthCheckList();
+
+    private final int SHUTDOWN_TIMEOUT_IN_MILLIS = 3000;
 
 
 
@@ -59,36 +60,35 @@ public abstract class Microservice {
 
         if(configProvider.getConfig().getBoolean("discovery.consul.enable")) {
             initializeConsul();
-            jerseyServlet.addLifeCycleListener(createConsulLifeCycleListener());
+            server.addLifeCycleListener(createConsulLifeCycleListener());
         }
 
         try {
             server.setStopAtShutdown(true);
+            server.setStopTimeout(SHUTDOWN_TIMEOUT_IN_MILLIS);
             server.start();
             logger.info("jetty server started successfully");
+            logger.info("Microservice {} ready to take requests..", this.serviceName());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
+        Runnable runnable = () -> {
                 try {
                     server.stop();
                     logger.info("jetty server successfully shutdown");
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Error on shutting down jetty server", e);
                 }
-            }
-        }));
+        };
+
+        Runtime.getRuntime().addShutdownHook(new Thread(runnable));
 
         try {
             server.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        logger.info("Microservice {} ready to take requests..", this.serviceName());
 
     }
 
@@ -109,11 +109,10 @@ public abstract class Microservice {
                 String host = configProvider.getConfig().getString("discovery.consul.host");
                 int port = configProvider.getConfig().getInt("discovery.consul.port");
                 Consul.Builder builder = Consul.builder();
-                System.out.println("host and port " +host+":"+port);
                 consul = builder.withHostAndPort(HostAndPort.fromParts(host, port)).build();
                 consulInitialized = true;
                 logger.info("Consul initialized for {}", this.serviceName());
-            } catch(Throwable t) {
+            } catch(RuntimeException t) {
                 initializationException = t;
                 try {
                     logger.warn("Initializing consul encountered error, going to sleep before retrying..", t);
